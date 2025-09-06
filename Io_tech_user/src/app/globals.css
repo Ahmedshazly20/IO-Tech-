@@ -3,8 +3,17 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --swiper-navigation-color: #000
+}
+.swiper-button-prev:after {
+  content: '→'; /* مثال: استبدال بمحتوى نصي */
+  font-size: 14px;
 }
 
+.swiper-button-next:after {
+  content: '←';
+  font-size: 14px;
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
