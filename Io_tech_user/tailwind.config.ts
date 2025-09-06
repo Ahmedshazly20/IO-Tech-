@@ -3,7 +3,14 @@
 const config: Config = {
     content: ["./src/**/*.{ts,tsx}"],
     theme: {
-        extend: {},
+        extend: {
+             height: {
+        'fill-available': '-webkit-fill-available',
+      },
+      minHeight: {
+        'fill-available': '-webkit-fill-available',
+      },
+        },
     },
     plugins: [],
 };

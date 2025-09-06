@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 import { useState } from 'react';
 export const TeamSection = () => {
 
@@ -74,12 +75,11 @@ export const TeamSection = () => {
   );
 
   return (
-    <div className="py-16 md:py-24">
+    <div className="py-[16px] md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800">Our Team</h2>
         <p className="mt-4 text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
-          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-          has been the industry's standard dummy text ever since the 1500s.
+          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
         </p>
 
         <div className="relative mt-12 flex items-center justify-center">
@@ -90,10 +90,12 @@ export const TeamSection = () => {
           <div className="flex flex-wrap md:flex-nowrap justify-center gap-8 md:gap-12 lg:gap-16 transition-transform duration-300 ease-in-out">
             {getVisibleMembers().map((member, index) => (
               <div key={index} className="flex flex-col items-center">
-                <img
-                  src={member.image}
+                <Image 
+                  src={'/dammy/team.png'} 
                   alt={member.name}
-                  className="w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48 rounded-full object-cover border-4 border-white shadow-lg"
+                  width={269}
+                  height={148}
+                  className=" sm:w-36 sm:h-36 md:w-48 md:h-48  object-cover  bg-[#643F2E] shadow-lg"
                 />
                 <h3 className="mt-6 text-lg sm:text-xl font-semibold text-gray-800">{member.name}</h3>
                 <p className="mt-1 text-sm text-gray-500">{member.position}</p>

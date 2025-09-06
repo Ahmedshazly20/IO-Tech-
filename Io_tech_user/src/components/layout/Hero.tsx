@@ -6,7 +6,7 @@ import Image from 'next/image';
 const HeroSection = () => {
   const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
 
-  const heroImage = '@/public/dummy/hero.jpg';  // Place the image in public/dummy/hero.jpg
+  const heroImage = '/dammy/hero.jpg';  // Place the image in public/dummy/hero.jpg
 
   const SearchIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 md:w-6 md:h-6">
@@ -29,11 +29,11 @@ const HeroSection = () => {
 
   return (
     <div
-      className="relative w-full h-screen bg-cover bg-center text-white"
+      className="relative w-full h-screen  bg-cover bg-center text-white"
       style={{ backgroundImage: `url(${heroImage})` }}
     >
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/60"></div>
+      <div className="absolute inset-0 bg-[#4B2615AD]"></div>
 
       {/* Navigation Bar */}
       <nav className="relative z-10 flex items-center justify-between p-4 sm:p-6 lg:px-12">
