@@ -60,7 +60,7 @@ const Testimonials = () => {
           </div>
 
           {/* Testimonial Card */}
-          <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-12 border border-white/10">
+          <div className=" backdrop-blur-md rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-12  border-white/10">
             
             {/* Main Content */}
             <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 mb-6 lg:mb-8">

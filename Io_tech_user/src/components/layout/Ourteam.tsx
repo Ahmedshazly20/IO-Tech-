@@ -10,6 +10,8 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 
 export const TeamSection = () => {
+
+  
   const teamMembers = [
     {
       name: 'Name Here',
@@ -70,11 +72,11 @@ export const TeamSection = () => {
                 spaceBetween: 44,
               },
               1024: {
-                slidesPerView: 4,
+                slidesPerView: 3,
                 spaceBetween: 50,
               },
               1280: {
-                slidesPerView: 5,
+                slidesPerView: 3,
                 spaceBetween: 50,
               },
             }}
