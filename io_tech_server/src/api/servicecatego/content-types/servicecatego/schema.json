@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "servicecategos",
+  "info": {
+    "singularName": "servicecatego",
+    "pluralName": "servicecategos",
+    "displayName": "Servicecatego"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Slug": {
+      "type": "uid"
+    },
+    "services": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::service.service"
+    },
+    "Description": {
+      "type": "text"
+    }
+  }
+}
