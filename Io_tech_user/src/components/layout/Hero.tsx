@@ -63,7 +63,7 @@ const HeroSection = () => {
             </button>
             <a
               href="#"
-              className="px-4 py-2 sm:px-6 sm:py-3 border-2 border-white rounded-full text-sm sm:text-base hover:bg-white hover:text-[#483a2d] transition-all duration-300 transform hover:scale-105"
+              className="px-4 py-2 sm:px-6 sm:py-3 border-2 border-white rounded-[10px] text-sm sm:text-base hover:bg-white hover:text-[#483a2d] transition-all duration-300 transform hover:scale-105"
             >
               Book Appointment
             </a>

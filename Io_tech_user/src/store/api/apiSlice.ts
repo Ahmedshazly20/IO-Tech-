@@ -4,7 +4,7 @@ import type { Service, TeamMember, StrapiCollectionResponse, StrapiResponse } fr
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: 'http://localhost:1337/api',
+    baseUrl: 'https://truthful-rainbow-e74803c8a0.strapiapp.com/api',
     prepareHeaders: (headers) => {
       // Add any headers you might need for authentication
       headers.set('Content-Type', 'application/json');

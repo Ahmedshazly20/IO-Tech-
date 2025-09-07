@@ -26,6 +26,11 @@
     
   }
 }
+.fill-available {
+  height: -webkit-fill-available;
+  height: -moz-available;
+  height: fill-available;
+}
 
 body {
   background: var(--background);

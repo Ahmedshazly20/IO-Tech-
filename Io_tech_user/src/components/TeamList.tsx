@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useGetTeamMembersQuery } from '../store/api/apiSlice';
 import { TeamMember } from '../types/strapi';
 
@@ -54,7 +55,7 @@ const TeamList = () => {
             >
               <div className="relative">
                 {member.Photo ? (
-                  <img
+                  <Image 
                     src={`http://localhost:1337${member.Photo.url}`}
                     alt={member.Photo.alternativeText || member.Name}
                     className="w-full h-64 object-cover"

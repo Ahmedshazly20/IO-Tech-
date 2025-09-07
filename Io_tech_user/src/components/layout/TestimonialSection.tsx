@@ -79,11 +79,11 @@ const Testimonials = () => {
               </div>
               
               {/* Content Section */}
-              <div className="w-full lg:w-2/3 flex flex-col justify-between min-h-full">
+              <div className="w-full lg:w-2/3 flex flex-col justify-between fill-available">
                 
                 {/* Quote */}
                 <blockquote className="text-white/80 leading-relaxed text-base sm:text-lg lg:text-xl xl:text-2xl mb-6 lg:mb-8">
-                  "{currentClient.quote}"
+                  {currentClient.quote}
                 </blockquote>
                 
                 {/* Client Info */}

@@ -96,7 +96,7 @@ export const TeamSection = () => {
               <SwiperSlide key={member.id}>
                 <div className="flex flex-col items-center">
                   <Image 
-                    src={member.Photo ? `http://localhost:1337${member.Photo.url}` : '/dammy/team.png'} 
+                    src={member.Photo ? `${member.Photo.url}` : '/dammy/team.png'} 
                     alt={member.Photo?.alternativeText || member.Name}
                     width={269}
                     height={148}
