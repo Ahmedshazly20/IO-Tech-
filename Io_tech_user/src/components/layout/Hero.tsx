@@ -10,7 +10,9 @@ const HeroSection = () => {
 
   const heroImage = '/dammy/hero.jpg'; 
 
-
+   const toggleServicesDropdown = () => {
+    setIsServicesDropdownOpen(prevState => !prevState);
+  };
 
   return (
     <div
@@ -38,18 +40,13 @@ const HeroSection = () => {
           <div className="hidden lg:flex items-center  space-x-8 text-sm md:text-base">
             <a href="#" className="hover:text-gray-300 transition-colors duration-300">Home</a>
             <a href="#" className="hover:text-gray-300 transition-colors duration-300">About us</a>
-            <div
-            className="relative"
-            onMouseEnter={() => setIsServicesDropdownOpen(true)}
-            onMouseLeave={() => setIsServicesDropdownOpen(false)}
-          >
-            <a href="#" className="hover:text-gray-300 transition-colors duration-300 flex items-center cursor-pointer">
+            <div className="relative">
+            <a href="#" onClick={toggleServicesDropdown} className="hover:text-gray-300 transition-colors duration-300 flex items-center cursor-pointer">
               Services <RiArrowDropDownLine />
             </a>
           <ServicesDropdown
             isOpen={isServicesDropdownOpen}
-            onMouseEnter={() => setIsServicesDropdownOpen(true)}
-            onMouseLeave={() => setIsServicesDropdownOpen(false)}
+           
           />
             </div>
             <a href="#" className="hover:text-gray-300 transition-colors duration-300">Our Team</a>

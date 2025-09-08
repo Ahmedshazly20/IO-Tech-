@@ -3,11 +3,7 @@
 import { useGetServicesQuery } from '../store/api/apiSlice';
 import { Service } from '../types/strapi';
 
-interface ServicesDropdownProps {
-  isOpen: boolean;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-}
+
 
 const ServicesDropdown = ({ isOpen, onMouseEnter, onMouseLeave }: ServicesDropdownProps) => {
   const { data: services, error, isLoading } = useGetServicesQuery();
