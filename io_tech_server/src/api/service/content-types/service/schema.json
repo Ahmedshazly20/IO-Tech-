@@ -22,7 +22,7 @@
     },
     "servicecatego": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToOne",
       "target": "api::servicecatego.servicecatego"
     }
   }
