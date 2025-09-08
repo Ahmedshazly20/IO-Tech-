@@ -24,6 +24,12 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::servicecatego.servicecatego"
+    },
+    "Service": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::servicecatego.servicecatego",
+      "inversedBy": "services"
     }
   }
 }

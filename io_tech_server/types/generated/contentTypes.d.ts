@@ -428,8 +428,12 @@ export interface ApiServiceService extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    Service: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::servicecatego.servicecatego'
+    >;
     servicecatego: Schema.Attribute.Relation<
-      'oneToOne',
+      'manyToOne',
       'api::servicecatego.servicecatego'
     >;
     slug: Schema.Attribute.UID;

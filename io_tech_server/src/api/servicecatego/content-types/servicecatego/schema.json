@@ -20,7 +20,8 @@
     "services": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::service.service"
+      "target": "api::service.service",
+      "mappedBy": "Service"
     },
     "Description": {
       "type": "text"
