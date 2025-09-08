@@ -1,199 +1,153 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useCreateService, useGetServiceCategories } from '@/lib/strapi';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { dataStore } from '@/lib/data';
-import { generateSlug } from '@/lib/utils';
-import { FormErrors, ServiceCategory } from '@/types';
 
 export default function AddServicePage() {
   const router = useRouter();
-  const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [formData, setFormData] = useState({
-    title: '',
-    slug: '',
-    description: '',
-    categoryId: ''
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: categoriesResponse, isLoading: isLoadingCategories } = useGetServiceCategories();
+  const { mutateAsync: createService, isPending: isCreating } = useCreateService();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const serviceCategories = dataStore.getServiceCategories();
-    setCategories(serviceCategories);
-    
-    if (serviceCategories.length === 0) {
-      router.push('/service-categories');
-    }
-  }, [router]);
+  const categories = useMemo(() => {
+    return (categoriesResponse as { data?: Array<{ documentId: string; Title: string }> } | undefined)?.data || [];
+  }, [categoriesResponse]);
 
-  const validateForm = () => {
-    const newErrors: FormErrors = {};
-    
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
-    }
-    
-    if (!formData.slug.trim()) {
-      newErrors.slug = 'Slug is required';
-    } else {
-      const existingServices = dataStore.getServices();
-      if (existingServices.some(service => service.slug === formData.slug)) {
-        newErrors.slug = 'Slug must be unique';
+  const formik = useFormik({
+    initialValues: {
+      Title: '',
+      Slug: '',
+      Description: '',
+      servicecatego: '',
+    },
+    validationSchema: Yup.object({
+      Title: Yup.string().required('Title is required'),
+      Slug: Yup.string().required('Slug is required'),
+      Description: Yup.string().required('Description is required'),
+      servicecatego: Yup.string().required('Category is required'),
+    }),
+    onSubmit: async (values, { resetForm }) => {
+      setSubmitError(null);
+      try {
+        await createService({
+          Title: values.Title,
+          Slug: values.Slug,
+          Description: values.Description,
+          servicecatego: values.servicecatego,
+        });
+        resetForm();
+        router.push('/services');
+      } catch (err: any) {
+        const msg = err?.response?.data?.error?.message || err?.message || 'Failed to create service';
+        console.error('Create service error:', err?.response?.status, err?.response?.data);
+        setSubmitError(msg);
       }
-    }
-    
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
-    }
-    
-    if (!formData.categoryId) {
-      newErrors.categoryId = 'Category is required';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      dataStore.addService({
-        title: formData.title.trim(),
-        slug: formData.slug.trim(),
-        description: formData.description.trim(),
-        categoryId: formData.categoryId
-      });
-      
-      router.push('/services');
-    } catch (error) {
-      console.error('Error creating service:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const title = e.target.value;
-    setFormData(prev => ({
-      ...prev,
-      title,
-      slug: generateSlug(title)
-    }));
-  };
-
-  if (categories.length === 0) {
-    return null;
-  }
+    },
+  });
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Add Service"
-        description="Create a new service"
-        backLink="/services"
+        description="Create a new service and assign it to a category"
+        action={
+          <Link href="/services">
+            <Button variant="outline">Back</Button>
+          </Link>
+        }
       />
 
       <Card>
         <CardContent className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {submitError && (
+            <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {submitError}
+            </div>
+          )}
+          <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Title *
-              </label>
-              <Input
+              <label className="block text-sm font-medium text-gray-700">Title</label>
+              <input
                 type="text"
-                value={formData.title}
-                onChange={handleTitleChange}
+                name="Title"
+                value={formik.values.Title}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
                 placeholder="Enter service title"
-                className={errors.title ? 'border-red-500' : ''}
               />
-              {errors.title && (
-                <p className="text-sm text-red-500 mt-1">{errors.title}</p>
+              {formik.touched.Title && formik.errors.Title && (
+                <p className="mt-1 text-sm text-red-600">{formik.errors.Title}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Slug *
-              </label>
-              <Input
+              <label className="block text-sm font-medium text-gray-700">Slug</label>
+              <input
                 type="text"
-                value={formData.slug}
-                onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
-                placeholder="service-slug"
-                className={errors.slug ? 'border-red-500' : ''}
+                name="Slug"
+                value={formik.values.Slug}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                placeholder="enter-slug"
               />
-              {errors.slug && (
-                <p className="text-sm text-red-500 mt-1">{errors.slug}</p>
+              {formik.touched.Slug && formik.errors.Slug && (
+                <p className="mt-1 text-sm text-red-600">{formik.errors.Slug}</p>
               )}
-              <p className="text-xs text-gray-500 mt-1">
-                Used in URLs. Auto-generated from title, but you can customize it.
-              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category *
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Description</label>
+              <textarea
+                name="Description"
+                value={formik.values.Description}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                placeholder="Enter a description"
+                rows={4}
+              />
+              {formik.touched.Description && formik.errors.Description && (
+                <p className="mt-1 text-sm text-red-600">{formik.errors.Description}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Category</label>
               <select
-                value={formData.categoryId}
-                onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${errors.categoryId ? 'border-red-500' : ''}`}
+                name="servicecatego"
+                value={formik.values.servicecatego}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                disabled={isLoadingCategories}
               >
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.title}
+                <option value="">{isLoadingCategories ? 'Loading categories...' : 'Select a category'}</option>
+                {categories.map((c: any) => (
+                  <option key={c.documentId ?? c.id} value={c.documentId ?? c.id}>
+                    {c.Title}
                   </option>
                 ))}
               </select>
-              {errors.categoryId && (
-                <p className="text-sm text-red-500 mt-1">{errors.categoryId}</p>
+              {formik.touched.servicecatego && formik.errors.servicecatego && (
+                <p className="mt-1 text-sm text-red-600">{formik.errors.servicecatego}</p>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description *
-              </label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Describe the service"
-                rows={4}
-                className={errors.description ? 'border-red-500' : ''}
-              />
-              {errors.description && (
-                <p className="text-sm text-red-500 mt-1">{errors.description}</p>
-              )}
-            </div>
-
-            <div className="flex space-x-4">
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-                className="flex-1"
-              >
-                {isSubmitting ? 'Creating...' : 'Create Service'}
+            <div className="flex gap-3">
+              <Button type="submit" disabled={isCreating}>
+                {isCreating ? 'Creating...' : 'Create Service'}
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-                className="flex-1"
-              >
-                Cancel
+              <Button type="button" variant="outline" onClick={() => formik.resetForm()} disabled={isCreating}>
+                Reset
               </Button>
             </div>
           </form>

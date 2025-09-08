@@ -10,11 +10,11 @@ import { strapiApi } from '@/lib/strapi';
 import { Upload, User, Mail, Phone, MessageCircle, Briefcase, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface TeamMemberFormData {
-  name: string;
-  role: string;
-  email: string;
-  phone: string;
-  whatsapp: string;
+  Name: string;
+  Role: string;
+  Email: string;
+  Phone: string;
+  WhatsApp: string;
   photo: File | null;
 }
 
@@ -26,21 +26,21 @@ interface TeamMemberFormProps {
 }
 
 const validationSchema = Yup.object({
-  name: Yup.string()
+  Name: Yup.string()
     .min(2, 'Name must be at least 2 characters')
     .max(50, 'Name must be less than 50 characters')
     .required('Name is required'),
-  role: Yup.string()
+  Role: Yup.string()
     .min(2, 'Role must be at least 2 characters')
     .max(50, 'Role must be less than 50 characters')
     .required('Role is required'),
-  email: Yup.string()
+  Email: Yup.string()
     .email('Please enter a valid email address')
     .required('Email is required'),
-  phone: Yup.string()
+  Phone: Yup.string()
     .matches(/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number')
     .required('Phone number is required'),
-  whatsapp: Yup.string()
+  WhatsApp: Yup.string()
     .matches(/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid WhatsApp number')
     .required('WhatsApp number is required'),
   photo: Yup.mixed()
@@ -67,11 +67,11 @@ export function TeamMemberForm({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const initialValues: TeamMemberFormData = {
-    name: initialData.name || '',
-    role: initialData.role || '',
-    email: initialData.email || '',
-    phone: initialData.phone || '',
-    whatsapp: initialData.whatsapp || '',
+    Name: initialData.Name || '',
+    Role: initialData.Role || '',
+    Email: initialData.Email || '',
+    Phone: initialData.Phone || '',
+    WhatsApp: initialData.WhatsApp || '',
     photo: null,
   };
 
@@ -84,18 +84,18 @@ export function TeamMemberForm({
       
       // Add the data object as required by Strapi
       const data = {
-        name: values.name,
-        role: values.role,
-        email: values.email,
-        phone: values.phone,
-        whatsapp: values.whatsapp,
+        Name: values.Name,
+        Role: values.Role,
+        Email: values.Email,
+        Phone: values.Phone,
+        WhatsApp: values.WhatsApp,
       };
       
       formData.append('data', JSON.stringify(data));
       
       // Add photo if provided
       if (values.photo) {
-        formData.append('files.photo', values.photo);
+        formData.append('files.Photo', values.photo);
       }
 
       let response;
@@ -181,12 +181,12 @@ export function TeamMemberForm({
                   </label>
                   <Field
                     as={Input}
-                    name="name"
+                    name="Name"
                     type="text"
                     placeholder="Enter full name"
                     className="w-full"
                   />
-                  <ErrorMessage name="name" component="div" className="text-red-500 text-sm mt-1" />
+                  <ErrorMessage name="Name" component="div" className="text-red-500 text-sm mt-1" />
                 </div>
 
                 <div>
@@ -196,12 +196,12 @@ export function TeamMemberForm({
                   </label>
                   <Field
                     as={Input}
-                    name="role"
+                    name="Role"
                     type="text"
                     placeholder="e.g., Senior Developer"
                     className="w-full"
                   />
-                  <ErrorMessage name="role" component="div" className="text-red-500 text-sm mt-1" />
+                  <ErrorMessage name="Role" component="div" className="text-red-500 text-sm mt-1" />
                 </div>
               </div>
 
@@ -216,12 +216,12 @@ export function TeamMemberForm({
                   </label>
                   <Field
                     as={Input}
-                    name="email"
+                    name="Email"
                     type="email"
                     placeholder="email@example.com"
                     className="w-full"
                   />
-                  <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
+                  <ErrorMessage name="Email" component="div" className="text-red-500 text-sm mt-1" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -232,12 +232,12 @@ export function TeamMemberForm({
                     </label>
                     <Field
                       as={Input}
-                      name="phone"
+                      name="Phone"
                       type="tel"
                       placeholder="+1234567890"
                       className="w-full"
                     />
-                    <ErrorMessage name="phone" component="div" className="text-red-500 text-sm mt-1" />
+                    <ErrorMessage name="Phone" component="div" className="text-red-500 text-sm mt-1" />
                   </div>
 
                   <div>
@@ -247,12 +247,12 @@ export function TeamMemberForm({
                     </label>
                     <Field
                       as={Input}
-                      name="whatsapp"
+                      name="WhatsApp"
                       type="tel"
                       placeholder="+1234567890"
                       className="w-full"
                     />
-                    <ErrorMessage name="whatsapp" component="div" className="text-red-500 text-sm mt-1" />
+                    <ErrorMessage name="WhatsApp" component="div" className="text-red-500 text-sm mt-1" />
                     <p className="text-xs text-gray-500 mt-1">Include country code</p>
                   </div>
                 </div>

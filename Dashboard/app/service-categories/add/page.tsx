@@ -7,33 +7,38 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { dataStore } from '@/lib/data';
+import { strapiApi } from '@/lib/strapi';
 import { generateSlug } from '@/lib/utils';
 import { FormErrors } from '@/types';
 
 export default function AddServiceCategoryPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    title: '',
-    slug: '',
-    description: ''
+    Title: '',
+    Slug: '',
+    Description: ''
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const validateForm = () => {
+  const validateForm = async () => {
     const newErrors: FormErrors = {};
     
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
+    if (!formData.Title.trim()) {
+      newErrors.Title = 'Title is required';
     }
     
-    if (!formData.slug.trim()) {
-      newErrors.slug = 'Slug is required';
+    if (!formData.Slug.trim()) {
+      newErrors.Slug = 'Slug is required';
     } else {
-      const existingCategories = dataStore.getServiceCategories();
-      if (existingCategories.some(cat => cat.slug === formData.slug)) {
-        newErrors.slug = 'Slug must be unique';
+      try {
+        const response = await strapiApi.getServiceCategories();
+        const existingCategories = response.data || [];
+        if (existingCategories.some((cat: any) => cat.Slug === formData.Slug)) {
+          newErrors.Slug = 'Slug must be unique';
+        }
+      } catch (error) {
+        console.error('Error checking slug uniqueness:', error);
       }
     }
     
@@ -44,15 +49,15 @@ export default function AddServiceCategoryPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    if (!(await validateForm())) return;
     
     setIsSubmitting(true);
     
     try {
-      dataStore.addServiceCategory({
-        title: formData.title.trim(),
-        slug: formData.slug.trim(),
-        description: formData.description.trim() || undefined
+      await strapiApi.createServiceCategory({
+        Title: formData.Title.trim(),
+        Slug: formData.Slug.trim(),
+        Description: formData.Description.trim() || undefined
       });
       
       router.push('/service-categories');
@@ -64,11 +69,11 @@ export default function AddServiceCategoryPage() {
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const title = e.target.value;
+    const Title = e.target.value;
     setFormData(prev => ({
       ...prev,
-      title,
-      slug: generateSlug(title)
+      Title,
+      Slug: generateSlug(Title)
     }));
   };
 
@@ -89,13 +94,13 @@ export default function AddServiceCategoryPage() {
               </label>
               <Input
                 type="text"
-                value={formData.title}
+                value={formData.Title}
                 onChange={handleTitleChange}
                 placeholder="Enter category title"
-                className={errors.title ? 'border-red-500' : ''}
+                className={errors.Title ? 'border-red-500' : ''}
               />
-              {errors.title && (
-                <p className="text-sm text-red-500 mt-1">{errors.title}</p>
+              {errors.Title && (
+                <p className="text-sm text-red-500 mt-1">{errors.Title}</p>
               )}
             </div>
 
@@ -105,13 +110,13 @@ export default function AddServiceCategoryPage() {
               </label>
               <Input
                 type="text"
-                value={formData.slug}
-                onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                value={formData.Slug}
+                onChange={(e) => setFormData(prev => ({ ...prev, Slug: e.target.value }))}
                 placeholder="category-slug"
-                className={errors.slug ? 'border-red-500' : ''}
+                className={errors.Slug ? 'border-red-500' : ''}
               />
-              {errors.slug && (
-                <p className="text-sm text-red-500 mt-1">{errors.slug}</p>
+              {errors.Slug && (
+                <p className="text-sm text-red-500 mt-1">{errors.Slug}</p>
               )}
               <p className="text-xs text-gray-500 mt-1">
                 Used in URLs. Auto-generated from title, but you can customize it.
@@ -123,8 +128,8 @@ export default function AddServiceCategoryPage() {
                 Description
               </label>
               <Textarea
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                value={formData.Description}
+                onChange={(e) => setFormData(prev => ({ ...prev, Description: e.target.value }))}
                 placeholder="Optional description of the category"
                 rows={4}
               />

@@ -20,12 +20,17 @@ const ServicesDropdown = ({ isOpen  }:ServicesDropdownProps) => {
 
   // Use real data if available, otherwise fallback
   const servicesList = services?.data ? 
+  
     services.data.map((service: Service) => ({
+      
+     
+
       title: service.Title,
       links: service.services.map(subService => subService.title)
     })) : 
     fallbackServicesList;
-
+ console.log(servicesList);
+ 
   if (!isOpen) return null;
 
   return (

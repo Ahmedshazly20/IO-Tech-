@@ -1,33 +1,83 @@
 export interface ServiceCategory {
-  id: string;
-  title: string;
-  slug: string;
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id: number;
+  documentId: string;
+  Title: string;
+  Slug: string;
+  Description?: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 }
 
 export interface Service {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  categoryId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id: number;
+  documentId: string;
+  Title: string;
+  Slug: string;
+  Description: string;
+  CategoryId: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 }
 
 export interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  description: string;
-  photo?: string;
-  whatsapp?: string;
-  phone?: string;
-  email: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id: number;
+  documentId: string;
+  Name: string;
+  Role: string;
+  Email: string;
+  Phone: string;
+  WhatsApp: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  Photo?: {
+    id: number;
+    documentId: string;
+    name: string;
+    alternativeText?: string;
+    caption?: string;
+    width: number;
+    height: number;
+    formats?: {
+      small?: {
+        ext: string;
+        url: string;
+        hash: string;
+        mime: string;
+        name: string;
+        path?: string;
+        size: number;
+        width: number;
+        height: number;
+        sizeInBytes: number;
+      };
+      thumbnail?: {
+        ext: string;
+        url: string;
+        hash: string;
+        mime: string;
+        name: string;
+        path?: string;
+        size: number;
+        width: number;
+        height: number;
+        sizeInBytes: number;
+      };
+    };
+    hash: string;
+    ext: string;
+    mime: string;
+    size: number;
+    url: string;
+    previewUrl?: string;
+    provider: string;
+    provider_metadata?: any;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+  };
 }
 
 export interface CompanyInfo {
@@ -36,9 +86,27 @@ export interface CompanyInfo {
   twitter?: string;
   facebook?: string;
   gmail?: string;
-  updatedAt: Date;
+  updatedAt: string;
 }
 
 export interface FormErrors {
   [key: string]: string;
+}
+
+// Strapi response wrappers
+export interface StrapiResponse<T> {
+  data: T;
+  meta?: any;
+}
+
+export interface StrapiListResponse<T> {
+  data: T[];
+  meta?: {
+    pagination?: {
+      page: number;
+      pageSize: number;
+      pageCount: number;
+      total: number;
+    };
+  };
 }

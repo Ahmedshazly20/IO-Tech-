@@ -6,7 +6,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({ 
     baseUrl: 'https://truthful-rainbow-e74803c8a0.strapiapp.com/api',
     prepareHeaders: (headers) => {
-      // Add any headers you might need for authentication
+     
       headers.set('Content-Type', 'application/json');
       return headers;
     },

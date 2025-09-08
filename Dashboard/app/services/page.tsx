@@ -1,18 +1,30 @@
+'use client';
+
 import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { dataStore } from '@/lib/data';
+import { useGetServices, useGetServiceCategories, useDeleteService } from '@/lib/strapi';
 import { formatDate } from '@/lib/utils';
 import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Service, ServiceCategory } from '@/types';
 
 export default function ServicesPage() {
-  const services = dataStore.getServices();
-  const categories = dataStore.getServiceCategories();
+  const { data: servicesRes, isLoading: servicesLoading } = useGetServices();
+  const { data: categoriesRes, isLoading: categoriesLoading } = useGetServiceCategories();
+  const { mutateAsync: deleteService, isPending: isDeleting } = useDeleteService();
 
-  const getCategoryName = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category?.title || 'Unknown Category';
+  const services = (servicesRes as { data?: Service[] } | undefined)?.data || [];
+  const categories = (categoriesRes as { data?: ServiceCategory[] } | undefined)?.data || [];
+
+  const getCategoryName = (service: Service & { servicecatego?: any }) => {
+    // Prefer populated relation if available
+    const populatedTitle = (service as any)?.servicecatego?.Title || (service as any)?.servicecatego?.title;
+    if (populatedTitle) return populatedTitle;
+    // Fallback to matching by stored CategoryId against loaded categories
+    const categoryId = (service as any).CategoryId;
+    const category = categories.find(cat => String(cat.id) === String(categoryId) || cat.documentId === String(categoryId));
+    return category?.Title || 'Unknown Category';
   };
 
   return (
@@ -31,6 +43,14 @@ export default function ServicesPage() {
       />
 
       <div className="grid gap-4">
+        {(servicesLoading || categoriesLoading) && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="text-gray-600 mt-2">Loading services...</p>
+            </CardContent>
+          </Card>
+        )}
         {services.map((service) => (
           <Card key={service.id}>
             <CardContent className="p-6">
@@ -38,29 +58,42 @@ export default function ServicesPage() {
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {service.title}
+                      {service.Title}
                     </h3>
                     <span className="px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">
-                      {getCategoryName(service.categoryId)}
+                      {getCategoryName(service as any)}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 mb-2">
-                    Slug: {service.slug}
+                    Slug: {service.Slug}
                   </p>
                   <p className="text-gray-600 mb-2">
-                    {service.description}
+                    {service.Description}
                   </p>
                   <p className="text-xs text-gray-400">
-                    Created: {formatDate(service.createdAt)}
+                    Created: {formatDate(new Date(service.createdAt))}
                   </p>
                 </div>
                 <div className="flex space-x-2 ml-4">
-                  <Link href={`/services/edit/${service.id}`}>
+                  <Link href={`/services/edit/${service.documentId}`}>
                     <Button variant="outline" size="sm">
                       <Edit className="w-4 h-4" />
                     </Button>
                   </Link>
-                  <Button variant="destructive" size="sm">
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    disabled={isDeleting}
+                    onClick={async () => {
+                      if (!confirm(`Delete service "${service.Title}"? This cannot be undone.`)) return;
+                      try {
+                        await deleteService(service.documentId as any);
+                      } catch (e) {
+                        console.error('Delete service failed', e);
+                        alert('Failed to delete service.');
+                      }
+                    }}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -69,11 +102,11 @@ export default function ServicesPage() {
           </Card>
         ))}
 
-        {services.length === 0 && (
+        {!servicesLoading && services.length === 0 && (
           <Card>
             <CardContent className="p-8 text-center">
               <p className="text-gray-500">No services found.</p>
-              {categories.length > 0 ? (
+              {!categoriesLoading && categories.length > 0 ? (
                 <Link href="/services/add" className="mt-4 inline-block">
                   <Button>
                     <Plus className="w-4 h-4 mr-2" />

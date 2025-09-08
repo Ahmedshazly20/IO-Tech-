@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Sidebar } from '@/components/Sidebar';
+import { QueryProvider } from './providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,7 +23,9 @@ export default function RootLayout({
           <Sidebar />
           <div className="lg:pl-64">
             <main className="p-4 lg:p-8">
-              {children}
+              <QueryProvider>
+                {children}
+              </QueryProvider>
             </main>
           </div>
         </div>

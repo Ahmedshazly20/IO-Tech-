@@ -6,27 +6,7 @@ import { Button } from '@/components/ui/button';
 import { strapiApi, STRAPI_URL } from '@/lib/strapi';
 import { formatDate } from '@/lib/utils';
 import { User, Mail, Phone, MessageCircle, Edit, Trash2, AlertCircle } from 'lucide-react';
-
-interface TeamMember {
-  id: number;
-  attributes: {
-    name: string;
-    role: string;
-    email: string;
-    phone: string;
-    whatsapp: string;
-    createdAt: string;
-    updatedAt: string;
-    photo?: {
-      data?: {
-        attributes: {
-          url: string;
-          alternativeText?: string;
-        };
-      };
-    };
-  };
-}
+import { TeamMember } from '@/types';
 
 interface TeamMembersListProps {
   onEdit?: (member: TeamMember) => void;
@@ -115,9 +95,8 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
       
       <div className="grid gap-6">
         {members.map((member) => {
-          const { attributes } = member;
-          const photoUrl = attributes.photo?.data?.attributes.url 
-            ? `${STRAPI_URL}${attributes.photo.data.attributes.url}`
+          const photoUrl = member.Photo?.url 
+            ? member.Photo.url
             : null;
 
           return (
@@ -129,7 +108,7 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                     {photoUrl ? (
                       <img
                         src={photoUrl}
-                        alt={attributes.photo?.data?.attributes.alternativeText || attributes.name}
+                        alt={member.Photo?.alternativeText || member.Name}
                         className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
                       />
                     ) : (
@@ -144,10 +123,10 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 truncate">
-                          {attributes.name}
+                          {member.Name}
                         </h3>
                         <p className="text-primary font-medium mb-2">
-                          {attributes.role}
+                          {member.Role}
                         </p>
                       </div>
 
@@ -164,7 +143,7 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => handleDelete(member.id, attributes.name)}
+                          onClick={() => handleDelete(member.id, member.Name)}
                           disabled={deletingId === member.id}
                         >
                           {deletingId === member.id ? (
@@ -181,27 +160,27 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                       <div className="flex items-center text-sm text-gray-600">
                         <Mail className="w-4 h-4 mr-2 text-gray-400" />
                         <a 
-                          href={`mailto:${attributes.email}`}
+                          href={`mailto:${member.Email}`}
                           className="hover:text-primary truncate"
                         >
-                          {attributes.email}
+                          {member.Email}
                         </a>
                       </div>
                       
                       <div className="flex items-center text-sm text-gray-600">
                         <Phone className="w-4 h-4 mr-2 text-gray-400" />
                         <a 
-                          href={`tel:${attributes.phone}`}
+                          href={`tel:${member.Phone}`}
                           className="hover:text-primary"
                         >
-                          {attributes.phone}
+                          {member.Phone}
                         </a>
                       </div>
                       
                       <div className="flex items-center text-sm text-gray-600">
                         <MessageCircle className="w-4 h-4 mr-2 text-gray-400" />
                         <a 
-                          href={`https://wa.me/${attributes.whatsapp.replace(/\D/g, '')}`}
+                          href={`https://wa.me/${member.WhatsApp.replace(/\D/g, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="hover:text-primary"
@@ -214,10 +193,10 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                     {/* Metadata */}
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <p className="text-xs text-gray-400">
-                        Added: {formatDate(new Date(attributes.createdAt))}
-                        {attributes.updatedAt !== attributes.createdAt && (
+                        Added: {formatDate(new Date(member.createdAt))}
+                        {member.updatedAt !== member.createdAt && (
                           <span className="ml-4">
-                            Updated: {formatDate(new Date(attributes.updatedAt))}
+                            Updated: {formatDate(new Date(member.updatedAt))}
                           </span>
                         )}
                       </p>

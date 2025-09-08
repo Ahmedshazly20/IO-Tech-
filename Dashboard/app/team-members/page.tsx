@@ -6,27 +6,7 @@ import { TeamMemberForm } from '@/components/TeamMemberForm';
 import { TeamMembersList } from '@/components/TeamMembersList';
 import { Button } from '@/components/ui/button';
 import { Plus, ArrowLeft } from 'lucide-react';
-
-interface TeamMember {
-  id: number;
-  attributes: {
-    name: string;
-    role: string;
-    email: string;
-    phone: string;
-    whatsapp: string;
-    createdAt: string;
-    updatedAt: string;
-    photo?: {
-      data?: {
-        attributes: {
-          url: string;
-          alternativeText?: string;
-        };
-      };
-    };
-  };
-}
+import { TeamMember } from '@/types';
 
 export default function TeamMembersPage() {
   const [showForm, setShowForm] = useState(false);
@@ -72,11 +52,11 @@ export default function TeamMembersPage() {
           <TeamMemberForm
             onSuccess={handleFormSuccess}
             initialData={editingMember ? {
-              name: editingMember.attributes.name,
-              role: editingMember.attributes.role,
-              email: editingMember.attributes.email,
-              phone: editingMember.attributes.phone,
-              whatsapp: editingMember.attributes.whatsapp,
+              Name: editingMember.Name,
+              Role: editingMember.Role,
+              Email: editingMember.Email,
+              Phone: editingMember.Phone,
+              WhatsApp: editingMember.WhatsApp,
             } : undefined}
             teamMemberId={editingMember?.id.toString()}
             mode={editingMember ? 'edit' : 'create'}

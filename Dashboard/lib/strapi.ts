@@ -1,88 +1,266 @@
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
+
+const STRAPI_URL = 'https://truthful-rainbow-e74803c8a0.strapiapp.com/api';
 const STRAPI_TOKEN = process.env.NEXT_PUBLIC_STRAPI_TOKEN;
 
-export const strapiApi = {
-  // Create team member with file upload
-  async createTeamMember(formData: FormData) {
-    const response = await fetch(`${STRAPI_URL}/api/ourteams`, {
-      method: 'POST',
-      headers: {
-        ...(STRAPI_TOKEN && { Authorization: `Bearer ${STRAPI_TOKEN}` }),
-      },
-      body: formData,
-    });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || 'Failed to create team member');
-    }
 
-    return response.json();
-  },
+const strapiClient = axios.create({
+  baseURL: `${STRAPI_URL}`});
 
-  // Get all team members
-  async getTeamMembers() {
-    const response = await fetch(`${STRAPI_URL}/api/ourteams?populate=photo`, {
-      headers: {
-        ...(STRAPI_TOKEN && { Authorization: `Bearer ${STRAPI_TOKEN}` }),
-      },
-    });
+// No auth header needed; endpoints are public
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch team members');
-    }
+interface StrapiError {
+  error?: {
+    message?: string;
+    name?: string;
+    details?: unknown;
+  };
+}
 
-    return response.json();
-  },
-
-  // Get single team member
-  async getTeamMember(id: string) {
-    const response = await fetch(`${STRAPI_URL}/api/ourteams/${id}?populate=photo`, {
-      headers: {
-        ...(STRAPI_TOKEN && { Authorization: `Bearer ${STRAPI_TOKEN}` }),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch team member');
-    }
-
-    return response.json();
-  },
-
-  // Update team member
-  async updateTeamMember(id: string, formData: FormData) {
-    const response = await fetch(`${STRAPI_URL}/api/ourteams/${id}`, {
-      method: 'PUT',
-      headers: {
-        ...(STRAPI_TOKEN && { Authorization: `Bearer ${STRAPI_TOKEN}` }),
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || 'Failed to update team member');
-    }
-
-    return response.json();
-  },
-
-  // Delete team member
-  async deleteTeamMember(id: string) {
-    const response = await fetch(`${STRAPI_URL}/api/ourteams/${id}`, {
-      method: 'DELETE',
-      headers: {
-        ...(STRAPI_TOKEN && { Authorization: `Bearer ${STRAPI_TOKEN}` }),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to delete team member');
-    }
-
-    return response.json();
-  },
+// --------------------- Our Team ---------------------
+export const useGetTeamMembers = () => {
+  return useQuery({
+    queryKey: ['teamMembers'],
+    queryFn: async () => {
+      const { data } = await strapiClient.get('/ourteams?populate=Photo');
+      return data;
+    },
+  });
 };
 
-export { STRAPI_URL };
+export const useGetTeamMember = (id: string) => {
+  return useQuery({
+    queryKey: ['teamMember', id],
+    queryFn: async () => {
+      const { data } = await strapiClient.get(`/ourteams/${id}?populate=Photo`);
+      return data;
+    },
+    enabled: !!id,
+  });
+};
+
+export const useCreateTeamMember = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const { data } = await strapiClient.post('/ourteams', formData);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+    },
+    onError: (error: AxiosError<StrapiError>) => {
+      throw new Error(error.response?.data.error?.message || 'Failed to create team member');
+    },
+  });
+};
+
+export const useUpdateTeamMember = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, formData }: { id: string; formData: FormData }) => {
+      const { data } = await strapiClient.put(`/ourteams/${id}`, formData);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+    },
+    onError: (error: AxiosError<StrapiError>) => {
+      throw new Error(error.response?.data.error?.message || 'Failed to update team member');
+    },
+  });
+};
+
+export const useDeleteTeamMember = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await strapiClient.delete(`/ourteams/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+    },
+    onError: (error: AxiosError<StrapiError>) => {
+      throw new Error(error.response?.data.error?.message || 'Failed to delete team member');
+    },
+  });
+};
+
+// --------------------- Service Categories ---------------------
+interface ServiceCategoryData {
+  Title: string;
+  Slug: string;
+  Description?: string;
+}
+
+export const useGetServiceCategories = () => {
+  return useQuery({
+    queryKey: ['serviceCategories'],
+    queryFn: async () => {
+      const { data } = await strapiClient.get('/servicecategos');
+      return data;
+    },
+  });
+};
+
+export const useGetServiceCategory = (id: string) => {
+  return useQuery({
+    queryKey: ['serviceCategory', id],
+    queryFn: async () => {
+      const { data } = await strapiClient.get(`/servicecategos/${id}`);
+      return data;
+    },
+    enabled: !!id,
+  });
+};
+
+export const useCreateServiceCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: ServiceCategoryData) => {
+      const response = await strapiClient.post('/servicecategos', { data });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['serviceCategories'] });
+    },
+    onError: (error: AxiosError<StrapiError>) => {
+      throw new Error(error.response?.data.error?.message || 'Failed to create service category');
+    },
+  });
+};
+
+export const useUpdateServiceCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: ServiceCategoryData }) => {
+      const response = await strapiClient.put(`/servicecategos/${id}`, { data });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['serviceCategories'] });
+    },
+    onError: (error: AxiosError<StrapiError>) => {
+      throw new Error(error.response?.data.error?.message || 'Failed to update service category');
+    },
+  });
+};
+
+export const useDeleteServiceCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await strapiClient.delete(`/servicecategos/${id}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['serviceCategories'] });
+    },
+    onError: (error: AxiosError<StrapiError>) => {
+      throw new Error(error.response?.data.error?.message || 'Failed to delete service category');
+    },
+  });
+};
+
+// --------------------- Services ---------------------
+interface ServiceData {
+  Title: string;
+  Slug: string;
+  Description: string;
+  servicecatego: string; // documentId string
+}
+
+export const useGetServices = () => {
+  return useQuery({
+    queryKey: ['services'],
+    queryFn: async () => {
+      const { data } = await strapiClient.get('/services?populate=servicecatego');
+      return data;
+    },
+  });
+};
+
+export const useGetService = (id: string) => {
+  return useQuery({
+    queryKey: ['service', id],
+    queryFn: async () => {
+      const { data } = await strapiClient.get(`/services/${id}?populate=*`);
+      return data;
+    },
+    enabled: !!id,
+  });
+};
+
+export const useCreateService = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: ServiceData) => {
+      // Map to Strapi's expected field names (lowercase)
+      const requestData = {
+        title: data.Title,
+        slug: data.Slug,
+        description: data.Description,
+        // Strapi accepts relation by documentId string directly
+        servicecatego: data.servicecatego,
+      };
+      const response = await strapiClient.post('/services', { data: requestData });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
+    onError: (error: AxiosError<StrapiError>) => {
+      throw new Error(error.response?.data.error?.message || 'Failed to create service');
+    },
+  });
+};
+
+export const useUpdateService = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: ServiceData }) => {
+      const requestData = {
+        title: data.Title,
+        slug: data.Slug,
+        description: data.Description,
+        servicecatego: data.servicecatego,
+      };
+      const response = await strapiClient.put(`/services/${id}`, { data: requestData });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
+    onError: (error: AxiosError<StrapiError>) => {
+      throw new Error(error.response?.data.error?.message || 'Failed to update service');
+    },
+  });
+};
+
+export const useDeleteService = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (documentId: string) => {
+      if (!documentId) {
+        throw new Error("DocumentId is required");
+      }
+
+      // حذف باستخدام documentId مباشرة
+      const response = await strapiClient.delete(`/services/${documentId}`);
+
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
+    onError: (error: AxiosError<StrapiError>) => {
+      throw new Error(
+        error.response?.data.error?.message || 'Failed to delete service'
+      );
+    },
+  });
+};
