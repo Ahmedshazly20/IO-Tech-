@@ -2,10 +2,12 @@
 
 import { useGetServicesQuery } from '../store/api/apiSlice';
 import { Service } from '../types/strapi';
+interface ServicesDropdownProps {
+  isOpen: boolean;
+}
 
 
-
-const ServicesDropdown = ({ isOpen, onMouseEnter, onMouseLeave }: ServicesDropdownProps) => {
+const ServicesDropdown = ({ isOpen  }:ServicesDropdownProps) => {
   const { data: services, error, isLoading } = useGetServicesQuery();
 
   // Fallback data in case API fails
@@ -29,8 +31,7 @@ const ServicesDropdown = ({ isOpen, onMouseEnter, onMouseLeave }: ServicesDropdo
   return (
     <div 
       className="fixed top-20 container mx-auto left-0 right-0 rounded-[10px] z-50 bg-[#4B2615] text-white backdrop-blur-sm shadow-2xl p-8 transform transition-all duration-300 ease-in-out"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+     
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {isLoading && (
