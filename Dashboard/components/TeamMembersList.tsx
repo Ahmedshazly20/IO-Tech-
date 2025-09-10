@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { strapiApi, useGetTeamMembers } from '@/lib/strapi';
+import { useGetTeamMembers, useDeleteTeamMember } from '@/lib/strapi';
 import { formatDate } from '@/lib/utils';
 import { User, Mail, Phone, MessageCircle, Edit, Trash2, AlertCircle } from 'lucide-react';
 import { TeamMember } from '@/types';
@@ -16,6 +16,7 @@ interface TeamMembersListProps {
 
 export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps) {
   const { data: teamMembers, isLoading, error: queryError, refetch } = useGetTeamMembers();
+  const { mutate: deleteMember, isPending: isDeleting, isError: deleteError, error: deleteMemberError } = useDeleteTeamMember();
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -24,21 +25,22 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
     }
   }, [refreshTrigger, refetch]);
 
-  const handleDelete = async (id: number, name: string) => {
+  const handleDelete = (id: number, name: string) => {
     if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
       return;
     }
 
-    try {
-      setDeletingId(id);
-      await strapiApi.deleteTeamMember(id.toString());
-      refetch();
-    } catch (err) {
-      console.error('Error deleting team member:', err);
-      alert('Failed to delete team member. Please try again.');
-    } finally {
-      setDeletingId(null);
-    }
+    setDeletingId(id);
+    deleteMember(id.toString(), {
+      onSuccess: () => {
+        setDeletingId(null);
+      },
+      onError: (err) => {
+        console.error('Error deleting team member:', err);
+        alert(`Failed to delete team member: ${err.message}`);
+        setDeletingId(null);
+      },
+    });
   };
 
   const handleRetry = () => {
@@ -87,11 +89,9 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Team Members ({members.length})</h2>
-      
       <div className="grid gap-6">
         {members.map((member) => {
           const photoUrl = member.Photo?.url ? member.Photo.url : null;
-
           return (
             <Card key={member.id} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
@@ -99,8 +99,8 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                   <div className="flex-shrink-0">
                     {photoUrl ? (
                       <Image
-                       width={64}
-                       height={64}
+                        width={64}
+                        height={64}
                         src={photoUrl}
                         alt={member.Photo?.alternativeText || member.Name}
                         className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
@@ -111,7 +111,6 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                       </div>
                     )}
                   </div>
-
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div>
@@ -122,7 +121,6 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                           {member.Role}
                         </p>
                       </div>
-
                       <div className="flex space-x-2 ml-4">
                         <Button
                           variant="outline"
@@ -136,9 +134,9 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                           variant="destructive"
                           size="sm"
                           onClick={() => handleDelete(member.id, member.Name)}
-                          disabled={deletingId === member.id}
+                          disabled={isDeleting && deletingId === member.id}
                         >
-                          {deletingId === member.id ? (
+                          {isDeleting && deletingId === member.id ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                           ) : (
                             <Trash2 className="w-4 h-4" />
@@ -146,31 +144,28 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                         </Button>
                       </div>
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                       <div className="flex items-center text-sm text-gray-600">
                         <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                        <a 
+                        <a
                           href={`mailto:${member.Email}`}
                           className="hover:text-primary truncate"
                         >
                           {member.Email}
                         </a>
                       </div>
-                      
                       <div className="flex items-center text-sm text-gray-600">
                         <Phone className="w-4 h-4 mr-2 text-gray-400" />
-                        <a 
+                        <a
                           href={`tel:${member.Phone}`}
                           className="hover:text-primary"
                         >
                           {member.Phone}
                         </a>
                       </div>
-                      
                       <div className="flex items-center text-sm text-gray-600">
                         <MessageCircle className="w-4 h-4 mr-2 text-gray-400" />
-                        <a 
+                        <a
                           href={`https://wa.me/${member.WhatsApp.replace(/\D/g, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -180,7 +175,6 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                         </a>
                       </div>
                     </div>
-
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <p className="text-xs text-gray-400">
                         Added: {formatDate(new Date(member.createdAt))}

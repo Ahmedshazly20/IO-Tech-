@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { strapiApi } from '@/lib/strapi';
+import { useCreateServiceCategory, useGetServiceCategories } from '@/lib/strapi';
 import { generateSlug } from '@/lib/utils';
 import { FormErrors } from '@/types';
 
@@ -19,53 +19,42 @@ export default function AddServiceCategoryPage() {
     Description: ''
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate: createCategory, isPending } = useCreateServiceCategory();
+  const { data: categoriesData } = useGetServiceCategories();
 
   const validateForm = async () => {
     const newErrors: FormErrors = {};
-    
     if (!formData.Title.trim()) {
       newErrors.Title = 'Title is required';
     }
-    
     if (!formData.Slug.trim()) {
       newErrors.Slug = 'Slug is required';
     } else {
-      try {
-        const response = await strapiApi.getServiceCategories();
-        const existingCategories = response.data || [];
-        if (existingCategories.some((cat: any) => cat.Slug === formData.Slug)) {
-          newErrors.Slug = 'Slug must be unique';
-        }
-      } catch (error) {
-        console.error('Error checking slug uniqueness:', error);
+      const existingCategories = categoriesData?.data || [];
+      if (existingCategories.some((cat: any) => cat.Slug === formData.Slug)) {
+        newErrors.Slug = 'Slug must be unique';
       }
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!(await validateForm())) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      await strapiApi.createServiceCategory({
-        Title: formData.Title.trim(),
-        Slug: formData.Slug.trim(),
-        Description: formData.Description.trim() || undefined
-      });
-      
-      router.push('/service-categories');
-    } catch (error) {
-      console.error('Error creating category:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    createCategory({
+      Title: formData.Title.trim(),
+      Slug: formData.Slug.trim(),
+      Description: formData.Description.trim() || undefined
+    }, {
+      onSuccess: () => {
+        router.push('/service-categories');
+      },
+      onError: (error) => {
+        console.error('Error creating category:', error);
+        alert('Failed to create category. Please try again.');
+      },
+    });
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +73,6 @@ export default function AddServiceCategoryPage() {
         description="Create a new service category"
         backLink="/service-categories"
       />
-
       <Card>
         <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -103,7 +91,6 @@ export default function AddServiceCategoryPage() {
                 <p className="text-sm text-red-500 mt-1">{errors.Title}</p>
               )}
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Slug *
@@ -122,7 +109,6 @@ export default function AddServiceCategoryPage() {
                 Used in URLs. Auto-generated from title, but you can customize it.
               </p>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description
@@ -134,14 +120,13 @@ export default function AddServiceCategoryPage() {
                 rows={4}
               />
             </div>
-
             <div className="flex space-x-4">
               <Button 
                 type="submit" 
-                disabled={isSubmitting}
+                disabled={isPending}
                 className="flex-1"
               >
-                {isSubmitting ? 'Creating...' : 'Create Category'}
+                {isPending ? 'Creating...' : 'Create Category'}
               </Button>
               <Button
                 type="button"
