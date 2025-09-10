@@ -204,7 +204,7 @@ export const useCreateService = () => {
         slug: data.Slug,
         description: data.Description,
         // Strapi accepts relation by documentId string directly
-        servicecatego: data.servicecatego,
+        Service: data.servicecatego,
       };
       const response = await strapiClient.post('/services', { data: requestData });
       return response.data;

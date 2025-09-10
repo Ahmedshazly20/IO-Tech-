@@ -25,13 +25,13 @@ export default function AddServicePage() {
       Title: '',
       Slug: '',
       Description: '',
-      servicecatego: '',
+      Service: '',
     },
     validationSchema: Yup.object({
       Title: Yup.string().required('Title is required'),
       Slug: Yup.string().required('Slug is required'),
       Description: Yup.string().required('Description is required'),
-      servicecatego: Yup.string().required('Category is required'),
+      Service: Yup.string().required('Category is required'),
     }),
     onSubmit: async (values, { resetForm }) => {
       setSubmitError(null);
@@ -40,7 +40,7 @@ export default function AddServicePage() {
           Title: values.Title,
           Slug: values.Slug,
           Description: values.Description,
-          servicecatego: values.servicecatego,
+          Service: values.Service,
         });
         resetForm();
         router.push('/services');
@@ -124,7 +124,7 @@ export default function AddServicePage() {
               <label className="block text-sm font-medium text-gray-700">Category</label>
               <select
                 name="servicecatego"
-                value={formik.values.servicecatego}
+                value={formik.values.Service}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
@@ -137,8 +137,8 @@ export default function AddServicePage() {
                   </option>
                 ))}
               </select>
-              {formik.touched.servicecatego && formik.errors.servicecatego && (
-                <p className="mt-1 text-sm text-red-600">{formik.errors.servicecatego}</p>
+              {formik.touched.Service && formik.errors.Service && (
+                <p className="mt-1 text-sm text-red-600">{formik.errors.Service}</p>
               )}
             </div>
 
