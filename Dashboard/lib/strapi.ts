@@ -6,10 +6,35 @@ const STRAPI_TOKEN = process.env.NEXT_PUBLIC_STRAPI_TOKEN;
 
 
 
+
+
+
+
 const strapiClient = axios.create({
   baseURL: `${STRAPI_URL}`});
 
-// No auth header needed; endpoints are public
+
+
+export const strapiApi = {
+  getServiceCategories: async () => {
+    const { data } = await strapiClient.get('/servicecategos');
+    return data;
+  },
+  getServiceCategory: async (id: string) => {
+    const { data } = await strapiClient.get(`/servicecategos/${id}`);
+    return data;
+  },
+  getTeamMembers: async () => {
+    const { data } = await strapiClient.get('/ourteams?populate=Photo');
+    return data;
+  },
+  getTeamMember: async (id: string) => {
+    const { data } = await strapiClient.get(`/ourteams/${id}?populate=Photo`);
+    return data;
+  },
+  
+}
+
 
 interface StrapiError {
   error?: {
