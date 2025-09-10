@@ -2,9 +2,8 @@ import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { strapiApi } from '@/lib/strapi';
-import EditServiceCategoryForm from './forms';
+import EditServiceCategoryForm from './Forms';
 
-// This function is required for Next.js static export to pre-render pages
 export async function generateStaticParams() {
   const categories = await strapiApi.getServiceCategories();
   
@@ -23,7 +22,6 @@ interface EditServiceCategoryPageProps {
   };
 }
 
-// This is a Server Component, it fetches data before rendering
 export default async function EditServiceCategoryPage({ params }: EditServiceCategoryPageProps) {
   const categoryData = await strapiApi.getServiceCategory(params.id);
 
