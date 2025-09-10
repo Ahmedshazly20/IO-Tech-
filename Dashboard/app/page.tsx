@@ -1,12 +1,20 @@
+'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { dataStore } from '@/lib/data';
+import { useGetServiceCategories, useGetServices, useGetTeamMembers } from '@/lib/strapi';
 import { FolderOpen, Wrench, Users, Building } from 'lucide-react';
 
 export default function Dashboard() {
-  const serviceCategories = dataStore.getServiceCategories();
-  const services = dataStore.getServices();
-  const teamMembers = dataStore.getTeamMembers();
+  // Fetch data from Strapi API
+  const { data: serviceCategoriesResponse, isLoading: loadingCategories } = useGetServiceCategories();
+  const { data: servicesResponse, isLoading: loadingServices } = useGetServices();
+  const { data: teamMembersResponse, isLoading: loadingTeamMembers } = useGetTeamMembers();
 
+  // Extract data arrays from API responses
+  const serviceCategories = serviceCategoriesResponse?.data || [];
+  const services = servicesResponse?.data || [];
+  const teamMembers = teamMembersResponse?.data || [];
+
+  // Calculate stats from real API data
   const stats = [
     {
       title: 'Service Categories',
@@ -37,6 +45,30 @@ export default function Dashboard() {
       bgColor: 'bg-orange-100'
     },
   ];
+
+  // Show loading state
+  if (loadingCategories || loadingServices || loadingTeamMembers) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="mt-2 text-gray-600">Loading dashboard data...</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <div className="animate-pulse h-4 bg-gray-200 rounded w-1/2"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="animate-pulse h-8 bg-gray-200 rounded w-1/3"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -72,17 +104,21 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {serviceCategories.slice(0, 5).map((category) => (
-                <div key={category.id} className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">{category.title}</p>
-                    <p className="text-sm text-gray-500">{category.slug}</p>
+              {serviceCategories.length > 0 ? (
+                serviceCategories.slice(0, 5).map((category: any) => (
+                  <div key={category.documentId} className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">{category.Title || category.title}</p>
+                      <p className="text-sm text-gray-500">{category.Slug || category.slug}</p>
+                    </div>
+                    <span className="text-sm text-gray-400">
+                      {new Date(category.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-400">
-                    {category.createdAt.toLocaleDateString()}
-                  </span>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500">No service categories found</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -93,17 +129,21 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {teamMembers.slice(0, 5).map((member) => (
-                <div key={member.id} className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">{member.name}</p>
-                    <p className="text-sm text-gray-500">{member.role}</p>
+              {teamMembers.length > 0 ? (
+                teamMembers.slice(0, 5).map((member: any) => (
+                  <div key={member.documentId} className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">{member.Name || member.name}</p>
+                      <p className="text-sm text-gray-500">{member.Role || member.role}</p>
+                    </div>
+                    <span className="text-sm text-gray-400">
+                      {new Date(member.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-400">
-                    {member.createdAt.toLocaleDateString()}
-                  </span>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500">No team members found</p>
+              )}
             </div>
           </CardContent>
         </Card>

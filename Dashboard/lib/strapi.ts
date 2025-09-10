@@ -170,14 +170,14 @@ interface ServiceData {
   Title: string;
   Slug: string;
   Description: string;
-  servicecatego: string; // documentId string
+  Service: string; // relation by documentId string
 }
 
 export const useGetServices = () => {
   return useQuery({
     queryKey: ['services'],
     queryFn: async () => {
-      const { data } = await strapiClient.get('/services?populate=servicecatego');
+      const { data } = await strapiClient.get('/services?populate=Service');
       return data;
     },
   });
@@ -204,7 +204,7 @@ export const useCreateService = () => {
         slug: data.Slug,
         description: data.Description,
         // Strapi accepts relation by documentId string directly
-        Service: data.servicecatego,
+        Service: data.Service,
       };
       const response = await strapiClient.post('/services', { data: requestData });
       return response.data;
@@ -226,7 +226,7 @@ export const useUpdateService = () => {
         title: data.Title,
         slug: data.Slug,
         description: data.Description,
-        servicecatego: data.servicecatego,
+        Service: data.Service,
       };
       const response = await strapiClient.put(`/services/${id}`, { data: requestData });
       return response.data;

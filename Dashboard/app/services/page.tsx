@@ -17,14 +17,14 @@ export default function ServicesPage() {
   const services = (servicesRes as { data?: Service[] } | undefined)?.data || [];
   const categories = (categoriesRes as { data?: ServiceCategory[] } | undefined)?.data || [];
 
-  const getCategoryName = (service: Service & { servicecatego?: any }) => {
-    // Prefer populated relation if available
-    const populatedTitle = (service as any)?.servicecatego?.Title || (service as any)?.servicecatego?.title;
-    if (populatedTitle) return populatedTitle;
-    // Fallback to matching by stored CategoryId against loaded categories
-    const categoryId = (service as any).CategoryId;
-    const category = categories.find(cat => String(cat.id) === String(categoryId) || cat.documentId === String(categoryId));
-    return category?.Title || 'Unknown Category';
+  const getCategoryName = (service: Service & { Service?: any }) => {
+    const relation = (service as any)?.Service;
+    if (!relation) return 'Unknown Category';
+    if (typeof relation === 'string') {
+      const match = categories.find(cat => cat.documentId === relation || String(cat.id) === String(relation));
+      return match?.Title || 'Unknown Category';
+    }
+    return relation?.Title || relation?.title || 'Unknown Category';
   };
 
   return (
@@ -58,28 +58,24 @@ export default function ServicesPage() {
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {service.Title}
+                      {service.title}
                     </h3>
                     <span className="px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">
                       {getCategoryName(service as any)}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 mb-2">
-                    Slug: {service.Slug}
+                    Slug: {service.slug}
                   </p>
                   <p className="text-gray-600 mb-2">
-                    {service.Description}
+                    {service.description}
                   </p>
                   <p className="text-xs text-gray-400">
                     Created: {formatDate(new Date(service.createdAt))}
                   </p>
                 </div>
                 <div className="flex space-x-2 ml-4">
-                  <Link href={`/services/edit/${service.documentId}`}>
-                    <Button variant="outline" size="sm">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                  </Link>
+                 
                   <Button 
                     variant="destructive" 
                     size="sm"

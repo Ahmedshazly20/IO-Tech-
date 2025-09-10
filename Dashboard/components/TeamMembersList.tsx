@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { strapiApi, STRAPI_URL } from '@/lib/strapi';
+import { strapiApi, useGetTeamMembers } from '@/lib/strapi';
 import { formatDate } from '@/lib/utils';
 import { User, Mail, Phone, MessageCircle, Edit, Trash2, AlertCircle } from 'lucide-react';
 import { TeamMember } from '@/types';
+import Image from 'next/image';
 
 interface TeamMembersListProps {
   onEdit?: (member: TeamMember) => void;
@@ -14,28 +15,14 @@ interface TeamMembersListProps {
 }
 
 export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps) {
-  const [members, setMembers] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: teamMembers, isLoading, error: queryError, refetch } = useGetTeamMembers();
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const fetchTeamMembers = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await strapiApi.getTeamMembers();
-      setMembers(response.data || []);
-    } catch (err) {
-      console.error('Error fetching team members:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch team members');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchTeamMembers();
-  }, [refreshTrigger]);
+    if (refreshTrigger) {
+      refetch();
+    }
+  }, [refreshTrigger, refetch]);
 
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
@@ -45,7 +32,7 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
     try {
       setDeletingId(id);
       await strapiApi.deleteTeamMember(id.toString());
-      setMembers(members.filter(member => member.id !== id));
+      refetch();
     } catch (err) {
       console.error('Error deleting team member:', err);
       alert('Failed to delete team member. Please try again.');
@@ -54,7 +41,11 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
     }
   };
 
-  if (loading) {
+  const handleRetry = () => {
+    refetch();
+  };
+
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -63,19 +54,23 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
     );
   }
 
-  if (error) {
+  if (queryError) {
     return (
       <Card>
         <CardContent className="p-8 text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 mb-4">{error}</p>
-          <Button onClick={fetchTeamMembers} variant="outline">
+          <p className="text-red-600 mb-4">
+            {queryError instanceof Error ? queryError.message : 'Failed to fetch team members'}
+          </p>
+          <Button onClick={handleRetry} variant="outline">
             Try Again
           </Button>
         </CardContent>
       </Card>
     );
   }
+
+  const members = teamMembers?.data || [];
 
   if (members.length === 0) {
     return (
@@ -95,18 +90,17 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
       
       <div className="grid gap-6">
         {members.map((member) => {
-          const photoUrl = member.Photo?.url 
-            ? member.Photo.url
-            : null;
+          const photoUrl = member.Photo?.url ? member.Photo.url : null;
 
           return (
             <Card key={member.id} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
-                  {/* Photo */}
                   <div className="flex-shrink-0">
                     {photoUrl ? (
-                      <img
+                      <Image
+                       width={64}
+                       height={64}
                         src={photoUrl}
                         alt={member.Photo?.alternativeText || member.Name}
                         className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
@@ -118,7 +112,6 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                     )}
                   </div>
 
-                  {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div>
@@ -130,7 +123,6 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                         </p>
                       </div>
 
-                      {/* Action Buttons */}
                       <div className="flex space-x-2 ml-4">
                         <Button
                           variant="outline"
@@ -155,7 +147,6 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                       </div>
                     </div>
 
-                    {/* Contact Information */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                       <div className="flex items-center text-sm text-gray-600">
                         <Mail className="w-4 h-4 mr-2 text-gray-400" />
@@ -190,7 +181,6 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
                       </div>
                     </div>
 
-                    {/* Metadata */}
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <p className="text-xs text-gray-400">
                         Added: {formatDate(new Date(member.createdAt))}

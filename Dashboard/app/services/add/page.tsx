@@ -80,7 +80,7 @@ export default function AddServicePage() {
                 value={formik.values.Title}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                className="mt-1 py-1  block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
                 placeholder="Enter service title"
               />
               {formik.touched.Title && formik.errors.Title && (
@@ -96,7 +96,7 @@ export default function AddServicePage() {
                 value={formik.values.Slug}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                className="mt-1 block py-1 w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
                 placeholder="enter-slug"
               />
               {formik.touched.Slug && formik.errors.Slug && (
@@ -111,7 +111,7 @@ export default function AddServicePage() {
                 value={formik.values.Description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                className="mt-1 block py-1 w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
                 placeholder="Enter a description"
                 rows={4}
               />
@@ -123,7 +123,7 @@ export default function AddServicePage() {
             <div>
               <label className="block text-sm font-medium text-gray-700">Category</label>
               <select
-                name="servicecatego"
+                name="Service"
                 value={formik.values.Service}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}

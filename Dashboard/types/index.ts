@@ -12,10 +12,15 @@ export interface ServiceCategory {
 export interface Service {
   id: number;
   documentId: string;
-  Title: string;
-  Slug: string;
-  Description: string;
-  CategoryId: string;
+  title: string;
+  slug: string;
+  description: string;
+  // Relation to category is now via `Service` relation (documentId string)
+  Service?: {
+    id?: number;
+    documentId?: string;
+    Title?: string;
+  } | string;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
