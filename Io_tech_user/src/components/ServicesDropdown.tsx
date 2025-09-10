@@ -9,7 +9,9 @@ interface ServicesDropdownProps {
 
 const ServicesDropdown = ({ isOpen  }:ServicesDropdownProps) => {
   const { data: services, error, isLoading } = useGetServicesQuery();
+ 
 
+   console.log(services);
   // Fallback data in case API fails
   const fallbackServicesList = [
     { title: 'Legal Consultation Services', links: ['Contracts', 'Notarization', 'Insurance'] },

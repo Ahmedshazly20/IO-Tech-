@@ -27,14 +27,7 @@ const HeroSection = () => {
         {/* Navigation Bar */}
       <nav className="relative z-10 flex items-center justify-between sm:p-6 ">
           <div className="text-xl sm:text-2xl font-bold">
-            {/* Improved: Use next/image for logo */}
-            {/* <Image
-              src="/logo.png" 
-              alt="Company Logo"
-              width={120}
-              height={50}
-              className="h-8 sm:h-10 w-auto"
-            /> */}
+           <div className='border-4 px-3  py-2  rounded-1xl border-blue-600 cursor-pointer hover:text-blue-500 '> Dashboard</div>   
           </div>
           
           <div className="hidden lg:flex items-center  space-x-8 text-sm md:text-base">
@@ -49,7 +42,7 @@ const HeroSection = () => {
            
           />
             </div>
-            <a href="#" className="hover:text-gray-300 transition-colors duration-300">Our Team</a>
+            <a href="/OurTeamPage" className="hover:text-gray-300 transition-colors duration-300">Our Team</a>
             <a href="#" className="hover:text-gray-300 transition-colors duration-300">Blogs</a>
             <a href="#" className="hover:text-gray-300 transition-colors duration-300">Contact us</a>
           </div>
