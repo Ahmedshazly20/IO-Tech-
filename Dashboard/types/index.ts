@@ -1,11 +1,11 @@
 export interface ServiceCategory {
-  id: number;
+  id: number ;
   documentId: string;
   Title: string;
   Slug: string;
   Description?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   publishedAt: string;
 }
 
@@ -15,7 +15,6 @@ export interface Service {
   title: string;
   slug: string;
   description: string;
-  // Relation to category is now via `Service` relation (documentId string)
   Service?: {
     id?: number;
     documentId?: string;

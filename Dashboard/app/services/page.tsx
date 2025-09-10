@@ -81,7 +81,7 @@ export default function ServicesPage() {
                     size="sm"
                     disabled={isDeleting}
                     onClick={async () => {
-                      if (!confirm(`Delete service "${service.Title}"? This cannot be undone.`)) return;
+                      if (!confirm(`Delete service "${service.title}"? This cannot be undone.`)) return;
                       try {
                         await deleteService(service.documentId as any);
                       } catch (e) {

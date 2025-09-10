@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { PageHeader } from '@/components/PageHeader';
-import { TeamMemberForm } from '@/components/TeamMemberForm';
 import { TeamMembersList } from '@/components/TeamMembersList';
 import { Button } from '@/components/ui/button';
 import { Plus, ArrowLeft } from 'lucide-react';
@@ -49,18 +48,7 @@ export default function TeamMembersPage() {
             }
           />
           
-          <TeamMemberForm
-            onSuccess={handleFormSuccess}
-            initialData={editingMember ? {
-              Name: editingMember.Name,
-              Role: editingMember.Role,
-              Email: editingMember.Email,
-              Phone: editingMember.Phone,
-              WhatsApp: editingMember.WhatsApp,
-            } : undefined}
-            teamMemberId={editingMember?.id.toString()}
-            mode={editingMember ? 'edit' : 'create'}
-          />
+          
         </>
       ) : (
         <>

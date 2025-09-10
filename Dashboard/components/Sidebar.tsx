@@ -19,7 +19,6 @@ const navigation = [
   { name: 'Service Categories', href: '/service-categories', icon: FolderOpen },
   { name: 'Services', href: '/services', icon: Wrench },
   { name: 'Team Members', href: '/team-members', icon: Users },
-  { name: 'Company Info', href: '/company-info', icon: Building },
 ];
 
 export function Sidebar() {

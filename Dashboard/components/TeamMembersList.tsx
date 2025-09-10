@@ -90,7 +90,7 @@ export function TeamMembersList({ onEdit, refreshTrigger }: TeamMembersListProps
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Team Members ({members.length})</h2>
       <div className="grid gap-6">
-        {members.map((member) => {
+        {members.map((member:any) => {
           const photoUrl = member.Photo?.url ? member.Photo.url : null;
           return (
             <Card key={member.id} className="hover:shadow-lg transition-shadow">
