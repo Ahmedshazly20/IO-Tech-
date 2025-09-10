@@ -109,11 +109,7 @@ export default function ServiceCategoriesPage() {
                   </p>
                 </div>
                 <div className="flex space-x-2 ml-4">
-                  <Link href={`/service-categories/edit/${category.documentId}`}>
-                    <Button variant="outline" size="sm">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                  </Link>
+                 
                   <Button 
                     variant="destructive" 
                     size="sm"
